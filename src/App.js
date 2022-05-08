@@ -1,15 +1,35 @@
 import "./App.css";
 import { useState } from "react";
+import * as Realm from "realm-web";
 
 function App() {
+  const app = new Realm.App({ id: "application-0-nwkmi"});
   const [gmail, setGmail] = useState("")
   const [password, setPsw] = useState("");
 
   async function handleSubmit(e) {
     e.preventDefault();
+    const user = await loginEmailPassword(gmail, password);
+    console.log("Successfully logged in!", user);
   }
 
-
+  async function loginEmailPassword(email, password) {
+    // Create an anonymous credential
+    const credentials = Realm.Credentials.emailPassword(email, password);
+    try {
+      // Authenticate the user
+      const user = await app.logIn(credentials);
+      // `App.currentUser` updates to match the logged in user
+      console.assert(user.id === app.currentUser.id);
+      return user;
+    } catch (err) {
+      console.error("Failed to log in", err);
+      alert("This account does not exist. Please register a new account before signing in.")
+    }
+  }
+  
+ 
+   
   return (
     <div>
       <form onSubmit={handleSubmit}>
@@ -54,6 +74,7 @@ function App() {
               <button type="submit">Submit</button>
             </div>
           </form>
+          <a href="/register">Register a new account.</a>
     </div>
 
     
